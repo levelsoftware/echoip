@@ -62,7 +62,7 @@ type Config struct {
 }
 
 func main() {
-	file, err := os.Open("etc/echoip/config.toml")
+	file, err := os.Open("/etc/echoip/config.toml")
 	if err != nil {
 		panic(err)
 	}
