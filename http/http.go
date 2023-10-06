@@ -32,6 +32,7 @@ type Server struct {
 	LookupAddr func(net.IP) (string, error)
 	LookupPort func(net.IP, uint64) error
 	cache      cache.Cache
+	cacheTtl   int
 	parser     parser.Parser
 	profile    bool
 	Sponsor    bool
@@ -43,8 +44,8 @@ type PortResponse struct {
 	Reachable bool   `json:"reachable"`
 }
 
-func New(parser parser.Parser, cache cache.Cache, profile bool) *Server {
-	return &Server{cache: cache, parser: parser, profile: profile}
+func New(parser parser.Parser, cache cache.Cache, cacheTtl int, profile bool) *Server {
+	return &Server{cache: cache, cacheTtl: cacheTtl, parser: parser, profile: profile}
 }
 
 func ipFromForwardedForHeader(v string) string {
@@ -109,10 +110,14 @@ func (s *Server) newResponse(r *http.Request) (parser.Response, error) {
 	if err != nil {
 		return parser.Response{}, err
 	}
+
 	var cachedResponse cache.CachedResponse
 	if err := s.cache.Get(ctx, ip.String(), &cachedResponse); err != nil && err != rcache.ErrCacheMiss {
 		return parser.Response{}, err
-	} else if err == nil {
+	}
+
+	if cachedResponse.IsSet() {
+		log.Printf("Return cached response for %s", ip.String())
 		return cachedResponse.Get(), nil
 	}
 
@@ -123,7 +128,9 @@ func (s *Server) newResponse(r *http.Request) (parser.Response, error) {
 
 	var response parser.Response
 	response, err = s.parser.Parse(ip, hostname)
-	if err := s.cache.Set(ctx, ip.String(), cachedResponse.Build(response)); err != nil {
+
+	log.Printf("Caching response for %s", ip.String())
+	if err := s.cache.Set(ctx, ip.String(), cachedResponse.Build(response), s.cacheTtl); err != nil {
 		return parser.Response{}, err
 	}
 

@@ -1,10 +1,12 @@
 Listen = ":8080"
 Template = "html/index.html"
-RedisUrl = "localhost:6379"
+RedisUrl = "redis://localhost:6379"
+CacheTtl = 3600 # in seconds
 ReverseLookup = true
 PortLookup = true
 ShowSponsor = true
 Database = "ipstack" # use "IP Stack" or "GeoIP"
+TrustedHeaders = []
 Profile = false # enable debug / profiling
 
 [IPStack]

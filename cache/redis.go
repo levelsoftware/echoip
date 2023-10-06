@@ -31,10 +31,11 @@ func (r *Redis) Get(ctx context.Context, ip string, cachedResponse *CachedRespon
 	return r.cache.Get(ctx, ip, cachedResponse)
 }
 
-func (r *Redis) Set(ctx context.Context, ip string, response CachedResponse) error {
+func (r *Redis) Set(ctx context.Context, ip string, response CachedResponse, cacheTtl int) error {
 	return r.cache.Set(&cache.Item{
 		Ctx:   ctx,
 		Key:   ip,
 		Value: response,
+		TTL:   time.Duration(cacheTtl * int(time.Second)),
 	})
 }

@@ -49,6 +49,7 @@ type Config struct {
 	Listen         string
 	Template       string
 	RedisUrl       string
+	CacheTtl       int
 	ReverseLookup  bool
 	PortLookup     bool
 	ShowSponsor    bool
@@ -117,7 +118,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	server := http.New(parser, &cache, config.Profile)
+	server := http.New(parser, &cache, config.CacheTtl, config.Profile)
 	server.IPHeaders = config.TrustedHeaders
 
 	if _, err := os.Stat(config.Template); err == nil {
