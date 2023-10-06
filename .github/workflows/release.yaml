@@ -23,7 +23,6 @@ jobs:
         run: go version
 
       - name: Build EchoIP binary
-        working-directory: cmd/echoip
         run: go build -o ./echoip ./cmd/echoip/main.go
 
       - uses: ncipollo/release-action@v1
