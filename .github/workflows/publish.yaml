@@ -34,7 +34,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
-          source: "./echoip"
+          source: "echoip"
           overwrite: true
           target: ${{ secrets.PATH }}
 
