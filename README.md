@@ -115,3 +115,8 @@ Usage of echoip:
     	Path to template dir (default "html")
   -x	Enable security module for IP Stack ( must have security module, aka. non-free account. )
 ```
+
+
+### Contributing
+
+All merge commits should follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for changelog generation.
