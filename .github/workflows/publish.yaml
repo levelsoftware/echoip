@@ -4,7 +4,7 @@ on:
       - "*"
 
 jobs:
-  release:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -17,6 +17,16 @@ jobs:
       - name: Build EchoIP binary
         run: go build -o ./echoip ./cmd/echoip/main.go
 
+      - name: Delete previous version
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+              sudo rm -rf ${{ secrets.PATH }}/echoip
+
       - name: Uploaded updated binary
         uses: appleboy/scp-action@v0.1.4
         with:
@@ -28,7 +38,7 @@ jobs:
           overwrite: true
           target: ${{ secrets.PATH }}
 
-      - name: executing remote ssh commands using password
+      - name: Update permissions and restart service
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.HOST }}
