@@ -1,12 +1,13 @@
 package main
 
 import (
-	"flag"
+	"io"
 	"log"
 	"strings"
 
 	"os"
 
+	"github.com/BurntSushi/toml"
 	"github.com/levelsoftware/echoip/cache"
 	"github.com/levelsoftware/echoip/http"
 	"github.com/levelsoftware/echoip/iputil"
@@ -32,56 +33,76 @@ func init() {
 	log.SetFlags(log.Lshortfile)
 }
 
+type IPStack struct {
+	ApiKey         string
+	UseHttps       bool
+	EnableSecurity bool
+}
+
+type GeoIP struct {
+	CountryFile string
+	CityFile    string
+	AsnFile     string
+}
+
+type Config struct {
+	Listen         string
+	Template       string
+	RedisUrl       string
+	ReverseLookup  bool
+	PortLookup     bool
+	ShowSponsor    bool
+	TrustedHeaders []string
+
+	Database string
+	Profile  bool
+
+	IPStack IPStack
+	GeoIP   GeoIP
+}
+
 func main() {
-	var ipstackApiKey string
-	flag.StringVar(&ipstackApiKey, "S", "", "IP Stack API Key")
+	file, err := os.Open("etc/echoip/config.toml")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
 
-	service := flag.String("d", "geoip", "Which database to use, 'ipstack' or 'geoip'")
-	ipStackEnableSecurityModule := flag.Bool("x", false, "Enable security module for IP Stack ( must have security module, aka. non-free account. )")
-	ipStackUseHttps := flag.Bool("h", false, "Use HTTPS for IP Stack ( only non-free accounts )")
+	var config Config
 
-	countryFile := flag.String("f", "", "Path to GeoIP country database")
-	cityFile := flag.String("c", "", "Path to GeoIP city database")
-	asnFile := flag.String("a", "", "Path to GeoIP ASN database")
-	listen := flag.String("l", ":8080", "Listening address")
-	reverseLookup := flag.Bool("r", false, "Perform reverse hostname lookups")
-	portLookup := flag.Bool("p", false, "Enable port lookup")
-	template := flag.String("t", "html", "Path to template dir")
-	profile := flag.Bool("P", false, "Enables profiling handlers")
-	sponsor := flag.Bool("s", false, "Show sponsor logo")
+	b, err := io.ReadAll(file)
+	if err != nil {
+		panic(err)
+	}
 
-	var headers multiValueFlag
-	flag.Var(&headers, "H", "Header to trust for remote IP, if present (e.g. X-Real-IP)")
-
-	var redisCacheUrl string
-	flag.StringVar(&redisCacheUrl, "C", "", "Redis cache URL ( redis://localhost:6379?password=hello&protocol=3 )")
-
-	flag.Parse()
-
-	if len(flag.Args()) != 0 {
-		flag.Usage()
-		return
+	err = toml.Unmarshal(b, &config)
+	if err != nil {
+		panic(err)
 	}
 
 	var parser parser.Parser
-	if *service == "geoip" {
+	if config.Database == "geoip" {
 		log.Print("Using GeoIP for IP database")
-		geo, err := geo.Open(*countryFile, *cityFile, *asnFile)
+		geo, err := geo.Open(
+			config.GeoIP.CountryFile,
+			config.GeoIP.CityFile,
+			config.GeoIP.AsnFile,
+		)
 		if err != nil {
 			log.Fatal(err)
 		}
 		parser = &geo
 	}
 
-	if *service == "ipstack" {
+	if config.Database == "ipstack" {
 		log.Print("Using GeoIP for IP database")
-		if *ipStackEnableSecurityModule {
+		if config.IPStack.EnableSecurity {
 			log.Print("Enable Security Module ( Requires Professional Plus account )")
 		}
-		enableSecurity := ipstackApi.ParamEnableSecurity(*ipStackEnableSecurityModule)
-		apiKey := ipstackApi.ParamToken(ipstackApiKey)
-		useHttps := ipstackApi.ParamUseHTTPS(*ipStackUseHttps)
-		if *ipStackUseHttps {
+		enableSecurity := ipstackApi.ParamEnableSecurity(config.IPStack.EnableSecurity)
+		apiKey := ipstackApi.ParamToken(config.IPStack.ApiKey)
+		useHttps := ipstackApi.ParamUseHTTPS(config.IPStack.UseHttps)
+		if config.IPStack.UseHttps {
 			log.Print("Use IP Stack HTTPS API ( Requires non-free account )")
 		}
 		if err := ipstackApi.Init(apiKey, enableSecurity, useHttps); err != nil {
@@ -91,38 +112,39 @@ func main() {
 		parser = &ips
 	}
 
-	cache, err := cache.RedisCache(redisCacheUrl)
+	cache, err := cache.RedisCache(config.RedisUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	server := http.New(parser, &cache, *profile)
-	server.IPHeaders = headers
-	if _, err := os.Stat(*template); err == nil {
-		server.Template = *template
+	server := http.New(parser, &cache, config.Profile)
+	server.IPHeaders = config.TrustedHeaders
+
+	if _, err := os.Stat(config.Template); err == nil {
+		server.Template = config.Template
 	} else {
-		log.Printf("Not configuring default handler: Template not found: %s", *template)
+		log.Printf("Not configuring default handler: Template not found: %s", config.Template)
 	}
-	if *reverseLookup {
+	if config.ReverseLookup {
 		log.Println("Enabling reverse lookup")
 		server.LookupAddr = iputil.LookupAddr
 	}
-	if *portLookup {
+	if config.PortLookup {
 		log.Println("Enabling port lookup")
 		server.LookupPort = iputil.LookupPort
 	}
-	if *sponsor {
+	if config.ShowSponsor {
 		log.Println("Enabling sponsor logo")
-		server.Sponsor = *sponsor
+		server.Sponsor = config.ShowSponsor
 	}
-	if len(headers) > 0 {
-		log.Printf("Trusting remote IP from header(s): %s", headers.String())
+	if len(config.TrustedHeaders) > 0 {
+		log.Printf("Trusting remote IP from header(s): %s", config.TrustedHeaders)
 	}
-	if *profile {
+	if config.Profile {
 		log.Printf("Enabling profiling handlers")
 	}
-	log.Printf("Listening on http://%s", *listen)
-	if err := server.ListenAndServe(*listen); err != nil {
+	log.Printf("Listening on http://%s", config.Listen)
+	if err := server.ListenAndServe(config.Listen); err != nil {
 		log.Fatal(err)
 	}
 }
