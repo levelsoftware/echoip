@@ -110,11 +110,12 @@ func (s *Server) newResponse(r *http.Request) (parser.Response, error) {
 		return parser.Response{}, err
 	}
 	var cachedResponse cache.CachedResponse
-	if err := s.cache.Get(ctx, ip.String(), &cachedResponse); err != nil && err == rcache.ErrCacheMiss {
-		return cachedResponse.Get(), err
-	} else if err != nil && err != rcache.ErrCacheMiss {
+	if err := s.cache.Get(ctx, ip.String(), &cachedResponse); err != nil && err != rcache.ErrCacheMiss {
 		return parser.Response{}, err
+	} else if err == nil {
+		return cachedResponse.Get(), nil
 	}
+
 	var hostname string
 	if s.LookupAddr != nil {
 		hostname, _ = s.LookupAddr(ip)
@@ -122,7 +123,10 @@ func (s *Server) newResponse(r *http.Request) (parser.Response, error) {
 
 	var response parser.Response
 	response, err = s.parser.Parse(ip, hostname)
-	s.cache.Set(ctx, ip.String(), cachedResponse.Build(response))
+	if err := s.cache.Set(ctx, ip.String(), cachedResponse.Build(response)); err != nil {
+		return parser.Response{}, err
+	}
+
 	response.UserAgent = userAgentFromRequest(r)
 
 	return response, nil
