@@ -77,13 +77,14 @@ func (fc *FakeCache) Get(ctx context.Context, ip string, response *cache.CachedR
 	return nil
 }
 
-func (fc *FakeCache) Set(ctx context.Context, ip string, response cache.CachedResponse) error {
+func (fc *FakeCache) Set(ctx context.Context, ip string, response cache.CachedResponse, cacheTtl int) error {
 	cachedResponse = response
 	return nil
 }
 
 func testServer() *Server {
-	return &Server{cache: &FakeCache{}, parser: &testDb{}, LookupAddr: lookupAddr, LookupPort: lookupPort}
+	fakeCache := FakeCache{}
+	return &Server{cache: &fakeCache, cacheTtl: 100, parser: &testDb{}, LookupAddr: lookupAddr, LookupPort: lookupPort}
 }
 
 func httpGet(url string, acceptMediaType string, userAgent string) (string, int, error) {
