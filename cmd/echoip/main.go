@@ -47,7 +47,7 @@ type GeoIP struct {
 
 type Config struct {
 	Listen         string
-	Template       string
+	TemplateDir    string
 	RedisUrl       string
 	CacheTtl       int
 	ReverseLookup  bool
@@ -113,18 +113,24 @@ func main() {
 		parser = &ips
 	}
 
-	cache, err := cache.RedisCache(config.RedisUrl)
-	if err != nil {
-		log.Fatal(err)
+	var serverCache cache.Cache
+	if len(config.RedisUrl) > 0 {
+		redisCache, err := cache.RedisCache(config.RedisUrl)
+		serverCache = &redisCache
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		serverCache = &cache.Null{}
 	}
 
-	server := http.New(parser, &cache, config.CacheTtl, config.Profile)
+	server := http.New(parser, serverCache, config.CacheTtl, config.Profile)
 	server.IPHeaders = config.TrustedHeaders
 
-	if _, err := os.Stat(config.Template); err == nil {
-		server.Template = config.Template
+	if _, err := os.Stat(config.TemplateDir); err == nil {
+		server.Template = config.TemplateDir
 	} else {
-		log.Printf("Not configuring default handler: Template not found: %s", config.Template)
+		log.Printf("Not configuring default handler: Template not found: %s", config.TemplateDir)
 	}
 	if config.ReverseLookup {
 		log.Println("Enabling reverse lookup")
