@@ -36,6 +36,7 @@ jobs:
 
       - uses: google-github-actions/release-please-action@v3
         with:
+          release-type: "go"
           command: "release-pr"
           extra-files: |
             echoip-linux-amd64-${{  github.ref_name }}.zip 
