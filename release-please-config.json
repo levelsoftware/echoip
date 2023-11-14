@@ -1,6 +1,6 @@
 {
   "bootstrap-sha": "ef1f4b388c24e977ec63d6943ac8f0b0c5f51b58",
-  "last-release-sha": "32a92399085082121675553e23d722605752519e",
+  "last-release-sha": "f8d88aa7e05b8d9415d1376bc5d74e97eb579d97",
   "release-type": "go",
   "packages": {
     ".": {
