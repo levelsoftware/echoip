@@ -10,7 +10,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  release-please:
+  release-please-bootstrap:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -23,4 +23,4 @@ jobs:
         run: npm i release-please -g
 
       - name: Bootstrap `release-please`
-        run: release-please bootstrap --token=${{ secrets.GITHUB_TOKEN }} --release-type=go --initial-version=1.0.0
+        run: release-please bootstrap --token=${{ secrets.GITHUB_TOKEN }} --repo-url=${{ github.repositoryUrl }} --release-type=go --initial-version=1.0.0
