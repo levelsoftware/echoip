@@ -45,6 +45,7 @@ jobs:
           command: "release-pr"
 
       - name: Compress Release
+        if: ${{ steps.release.outputs.releases_created }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
