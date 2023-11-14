@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.1 (2023-11-07)
+
+### Features
+
+- RSA JWT Signature Validation
+- ECDSA JWT Signature Validation
+
 ## 1.2.0 (2023-10-06)
 
 ### Features

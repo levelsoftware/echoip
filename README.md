@@ -191,3 +191,15 @@ You can connect EchoIP to a Redis client to cache each request per IP. You can c
 ### Running with `systemd`
 
 There is a systemd service file you can install in `/etc/systemd`.
+
+### Publish a Release
+
+Action will build, package and upload the release file to github.
+
+- Add features/fixes to `CHANGELOG.md` to feature/fix branch
+- Merge branch into `master` with pull request
+- Tag and push to github to start `Release` workflow
+
+#### Semver Versioning
+
+If publishing a breaking change, be sure to tag a larger [major version](https://semver.org/#spec-item-8).
