@@ -19,8 +19,5 @@ jobs:
         with:
           node-version: "18.0.0"
 
-      - name: Install `release-please`
-        run: npm i release-please -i
-
-      - name: Bootstrap `release-please`
-        run: release-please bootstrap --token=${{ secrets.GITHUB_TOKEN }} --release-type=go --initial-version=1.0.0
+      - name: Install & Bootstrap `release-please`
+        run: npm i release-please -i & release-please bootstrap --token=${{ secrets.GITHUB_TOKEN }} --release-type=go --initial-version=1.0.0
