@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.2.0](https://github.com/levelsoftware/echoip/compare/v1.1.0...v1.2.0) (2023-11-14)
+
+
+### Features
+
+* **ipstack:** added currency module to IP Stack response for parser ([cf59e44](https://github.com/levelsoftware/echoip/commit/cf59e4401a4ad5419734ec7d91b1c7da09b2fa83))
+
+
+### Bug Fixes
+
+* **ci:** create a release when the release PR is merged ([395fe5c](https://github.com/levelsoftware/echoip/commit/395fe5ceeecf316998fd8dee67218d6852ddf008))
+* **releases:** fixing packge name for future releases and changelogs ([fb436c9](https://github.com/levelsoftware/echoip/commit/fb436c98e4b4b36c69689346a2c73e0f782f4ad0))
+
 ## 1.1.0 (2023-11-14)
 
 
