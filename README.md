@@ -191,3 +191,9 @@ You can connect EchoIP to a Redis client to cache each request per IP. You can c
 ### Running with `systemd`
 
 There is a systemd service file you can install in `/etc/systemd`.
+
+### Contributing & Commiting
+
+In order to automatically create releases with `release-please` and automating the change log -- commiting using [Commitizen](https://github.com/commitizen/cz-cli?tab=readme-ov-file#optional-install-and-run-commitizen-locally).
+
+Commitizen helps with identitifying features (feat), fixes (fix), and other "reasonable units".
