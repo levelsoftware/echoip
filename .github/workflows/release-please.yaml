@@ -37,7 +37,7 @@ jobs:
         run: go build -o ./echoip ./cmd/echoip/main.go
 
       - uses: google-github-actions/release-please-action@v3
-        id: release-please
+        id: release
         with:
           bootstrap-sha: "ef1f4b388c24e977ec63d6943ac8f0b0c5f51b58"
           last-release-sha: "32a92399085082121675553e23d722605752519e"
@@ -50,8 +50,8 @@ jobs:
         run: |
           zip -r echoip-linux-amd64-${{ steps.release.outputs.tag_name }}.zip echoip html LICENSE
 
-      - name: Upload Releas
-        if: ${{ steps.release-please.outputs.release_created }}
+      - name: Upload Release
+        if: ${{ steps.release.outputs.releases_created }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release upload ${{ steps.release.outputs.tag_name }} echoip-linux-amd64-${{ steps.release.outputs.tag_name }}.zip
