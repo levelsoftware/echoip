@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/levelsoftware/echoip/compare/v1.2.0...v1.2.1) (2023-11-14)
+
+
+### Bug Fixes
+
+* **ci:** updated CI to use latest release sha ([11e9399](https://github.com/levelsoftware/echoip/commit/11e93991204e7db826fd66ac0ccc721d4743bf93))
+
 ## [1.2.0](https://github.com/levelsoftware/echoip/compare/v1.1.0...v1.2.0) (2023-11-14)
 
 
