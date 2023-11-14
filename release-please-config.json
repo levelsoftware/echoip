@@ -1,7 +1,7 @@
 {
   "bootstrap-sha": "ef1f4b388c24e977ec63d6943ac8f0b0c5f51b58",
-  "last-release-sha": "32a92399085082121675553e23d722605752519e",
   "release-type": "go",
+  "skip-github-release": false,
   "packages": {
     ".": {
       "changelog-path": "CHANGELOG.md",
