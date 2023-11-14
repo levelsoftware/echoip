@@ -5,12 +5,13 @@
   "packages": {
     ".": {
       "changelog-path": "CHANGELOG.md",
-      "package-name": "echoip",
+      "component": "echoip",
       "release-type": "go",
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
-      "draft": false,
-      "prerelease": false
+      "draft": true,
+      "prerelease": false,
+      "skip-github-release": false
     }
   },
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json"
