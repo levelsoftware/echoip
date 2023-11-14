@@ -1,6 +1,7 @@
 on:
   push:
     branches:
+      - fix/added-currency-from-ipstack-response
       - main
 
 permissions:
